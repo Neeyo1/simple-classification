@@ -3,6 +3,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
 import pandas as pd 
+import matplotlib.pyplot as plt
 
 def main():
     print("Hello world")
@@ -50,14 +51,32 @@ def classification(df):
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test) 
 
-    classifier = KNeighborsClassifier(n_neighbors=5)
-    classifier.fit(X_train, Y_train) 
+    classifier_acc = []
+    max_k = 25
+    repeat_each_k = 100
 
-    Y_predict = classifier.predict(X_test)
+    for i in range(1, max_k):
+        print("K = " + str(i))
+        classifier_acc_temp = []
+        for j in range(1, repeat_each_k):
+            classifier = KNeighborsClassifier(n_neighbors=i)
+            classifier.fit(X_train, Y_train) 
 
-    print(confusion_matrix(Y_test, Y_predict))
-    print(classification_report(Y_test, Y_predict)) 
-    print(accuracy_score(Y_test, Y_predict))
+            Y_predict = classifier.predict(X_test)
+
+            classifier_acc_temp.append(accuracy_score(Y_test, Y_predict))
+        classifier_acc.append(sum(classifier_acc_temp) / len(classifier_acc_temp))
+
+    #print(confusion_matrix(Y_test, Y_predict))
+    #print(classification_report(Y_test, Y_predict)) 
+    #print(accuracy_score(Y_test, Y_predict))
+
+    plt.figure(figsize=(10,6))
+    plt.plot(range(1,max_k),classifier_acc,color='black', marker='o',markerfacecolor='red', markersize=10)
+    plt.title('Accuracy per K-neighbors')
+    plt.xlabel('K')
+    plt.ylabel('Accuracy')
+    plt.show()
 
 if __name__ == "__main__":
     main()
